@@ -215,7 +215,9 @@ def train(args):
     for step in range(args.iters + 1):
         if step % EVAL_EVERY == 0 or step == args.iters:
             l = estimate_loss(model, train_data, val_data)
-            print(f"step {step:5d} | train loss {l['train']:.3f} | val loss {l['val']:.3f} | {time.time()-start:.0f}s")
+            print(f"step {step:5d} | train loss {l['train']:.3f} | val loss {l['val']:.3f} | {time.time()-start:.0f}s", flush=True)
+            # Checkpoint as we go, so an interrupted run still leaves a usable model.
+            torch.save({"model": model.state_dict(), "chars": tok.chars}, args.out)
 
         if step == args.iters:
             break
@@ -227,7 +229,6 @@ def train(args):
         opt.step()
         sched.step()
 
-    torch.save({"model": model.state_dict(), "chars": tok.chars}, args.out)
     print(f"saved {args.out}")
 
 
